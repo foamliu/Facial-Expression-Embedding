@@ -5,7 +5,7 @@ from subprocess import Popen, PIPE
 import cv2 as cv
 from tqdm import tqdm
 
-from config import download_folder, image_folder
+from config import download_folder, image_folder, im_size
 from utils import ensure_folder
 
 
@@ -28,6 +28,7 @@ def download(tokens, idx, num):
     left, right = int(round(left * width)), int(round(right * width))
     top, bottom = int(round(top * height)), int(round(bottom * height))
     img = img[top:bottom, left:right, :]
+    img = cv.resize(img, (im_size, im_size))
     filename = '{}_{}.jpg'.format(idx, num)
     filename = os.path.join(image_folder, filename)
     cv.imwrite(filename, img)

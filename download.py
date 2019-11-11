@@ -11,10 +11,10 @@ from utils import ensure_folder
 
 def download(tokens, idx, num):
     url = tokens[0].replace('"', '').strip()
-    left = tokens[1].strip()
-    right = tokens[2].strip()
-    top = tokens[3].strip()
-    bottom = tokens[4].strip()
+    left = float(tokens[1].strip())
+    right = float(tokens[2].strip())
+    top = float(tokens[3].strip())
+    bottom = float(tokens[4].strip())
 
     filename = url[url.rfind("/") + 1:].strip()
     fullname = os.path.join(download_folder, filename)

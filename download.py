@@ -16,10 +16,10 @@ def download(tokens, idx, num):
     top = tokens[3].strip()
     bottom = tokens[4].strip()
 
-    filename = url[url.rfind("/") + 1:]
+    filename = url[url.rfind("/") + 1:].strip()
     fullname = os.path.join(download_folder, filename)
     if not os.path.isfile(fullname):
-        process = Popen(["wget", '-N', filename, "-P", download_folder], stdout=PIPE)
+        process = Popen(["wget", '-N', url, "-P", download_folder], stdout=PIPE)
         (output, err) = process.communicate()
         exit_code = process.wait()
 

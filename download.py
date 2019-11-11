@@ -71,10 +71,11 @@ def main():
     train = get_data('train')
     test = get_data('test')
 
-    num_train = len(train)
-    print('num_train: ' + str(num_train))
-    num_test = len(test)
-    print('num_test: ' + str(num_test))
+    print('num_train: ' + str(len(train)))
+    print('num_test: ' + str(len(test)))
+
+    print('train[:10]: ' + str(train[:10]))
+    print('test[:10]: ' + str(test[:10]))
 
     with open('data/train.pkl', 'wb') as f:
         pickle.dump(train, f)

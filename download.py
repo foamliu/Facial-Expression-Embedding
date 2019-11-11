@@ -23,16 +23,19 @@ def download(tokens, idx, num):
         (output, err) = process.communicate()
         exit_code = process.wait()
 
-    img = cv.imread(fullname)
-    height, width = img.shape[:2]
-    left, right = int(round(left * width)), int(round(right * width))
-    top, bottom = int(round(top * height)), int(round(bottom * height))
-    img = img[top:bottom, left:right, :]
-    img = cv.resize(img, (im_size, im_size))
-    filename = '{}_{}.jpg'.format(idx, num)
-    filename = os.path.join(image_folder, filename)
-    cv.imwrite(filename, img)
-    return filename
+    if os.path.isfile(fullname):
+        img = cv.imread(fullname)
+        height, width = img.shape[:2]
+        left, right = int(round(left * width)), int(round(right * width))
+        top, bottom = int(round(top * height)), int(round(bottom * height))
+        img = img[top:bottom, left:right, :]
+        img = cv.resize(img, (im_size, im_size))
+        filename = '{}_{}.jpg'.format(idx, num)
+        filename = os.path.join(image_folder, filename)
+        cv.imwrite(filename, img)
+        return filename
+    else:
+        return None
 
 
 def get_samples(image_1, image_2, image_3, triplet_type, tokens):
@@ -58,9 +61,10 @@ def get_data(split):
         image_1 = download(tokens[:5], i, 1)
         image_2 = download(tokens[5:10], i, 2)
         image_3 = download(tokens[10:15], i, 3)
-        triplet_type = tokens[15]
-        sample_list = get_samples(image_1, image_2, image_3, triplet_type, tokens[16:])
-        samples = samples + sample_list
+        if image_1 is not None and image_2 is not None and image_3 is not None:
+            triplet_type = tokens[15]
+            sample_list = get_samples(image_1, image_2, image_3, triplet_type, tokens[16:])
+            samples = samples + sample_list
     return samples
 
 

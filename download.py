@@ -10,7 +10,7 @@ from utils import ensure_folder
 
 
 def download(tokens, idx, num):
-    url = tokens[0].strip()
+    url = tokens[0].replace('"', '').strip()
     left = tokens[1].strip()
     right = tokens[2].strip()
     top = tokens[3].strip()

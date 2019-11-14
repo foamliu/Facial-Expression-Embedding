@@ -59,7 +59,7 @@ class FECDataset(Dataset):
         img_2 = self.get_image(sample['image_2'])
         img_3 = self.get_image(sample['image_3'])
         # annotation = int(round(sample['annotation'].mean()))
-        annotation = sample['annotation'
+        annotation = sample['annotation']
         assert (annotation in [1, 2, 3])
         img_1, img_2, img_3 = swap(img_1, img_2, img_3, annotation)
 

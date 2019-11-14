@@ -46,8 +46,8 @@ class FECDataset(Dataset):
         self.transformer = data_transforms[split]
 
     def get_image(self, image_name):
-        full_path = os.path.join(image_folder, image_name)
-        img = cv.imread(full_path)
+        # full_path = os.path.join(image_folder, image_name)
+        img = cv.imread(image_name)
         img = img[..., ::-1]  # RGB
         img = transforms.ToPILImage()(img)
         img = self.transformer(img)

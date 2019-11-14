@@ -1,6 +1,5 @@
-import json
 import os
-import random
+import pickle
 
 import cv2 as cv
 from torch.utils.data import Dataset
@@ -27,46 +26,52 @@ data_transforms = {
 }
 
 
-class DeepIQADataset(Dataset):
+def swap(img_1, img_2, img_3, annotation):
+    if annotation == 1:
+        return img_2, img_3, img_1
+    elif annotation == 2:
+        return img_1, img_3, img_2
+    else:  # annotation == 3
+        return img_1, img_2, img_3
+
+
+class FECDataset(Dataset):
     def __init__(self, split):
-        filename = '{}.json'.format(split)
+        filename = 'data/{}.pkl'.format(split)
         with open(filename, 'r') as file:
-            samples = json.load(file)
+            samples = pickle.load(file)
 
         self.samples = samples
 
         self.transformer = data_transforms[split]
 
+    def get_image(self, image_name):
+        full_path = os.path.join(image_folder, image_name)
+        img = cv.imread(full_path)
+        img = img[..., ::-1]  # RGB
+        img = transforms.ToPILImage()(img)
+        img = self.transformer(img)
+        return img
+
     def __getitem__(self, i):
         sample = self.samples[i]
-        before = sample['before']
-        full_path = os.path.join(image_folder, before)
-        img_0 = cv.imread(full_path)
-        img_0 = img_0[..., ::-1]  # RGB
-        img_0 = transforms.ToPILImage()(img_0)
-        img_0 = self.transformer(img_0)
+        img_1 = self.get_image(sample['image_1'])
+        img_2 = self.get_image(sample['image_2'])
+        img_3 = self.get_image(sample['image_3'])
+        annotation = int(round(sample['annotation'].mean()))
+        assert (annotation in [1, 2, 3])
+        img_1, img_2, img_3 = swap(img_1, img_2, img_3, annotation)
 
-        after = sample['after']
-        full_path = os.path.join(image_folder, after)
-        img_1 = cv.imread(full_path)
-        img_1 = img_1[..., ::-1]  # RGB
-        img_1 = transforms.ToPILImage()(img_1)
-        img_1 = self.transformer(img_1)
-
-        # the second input should be ranked higher
-        if random.random() > 0.5:
-            return img_0, img_1, 0.
-        else:
-            return img_1, img_0, 1.
+        return img_1, img_2, img_3, 0
 
     def __len__(self):
         return len(self.samples)
 
 
 if __name__ == "__main__":
-    train = DeepIQADataset('train')
+    train = FECDataset('train')
     print('num_train: ' + str(len(train)))
-    valid = DeepIQADataset('valid')
+    valid = FECDataset('valid')
     print('num_valid: ' + str(len(valid)))
 
     print(train[0])

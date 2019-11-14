@@ -1,7 +1,8 @@
+import torch
 from torch import nn
 from torchsummary import summary
 from torchvision import models
-import torch
+
 
 class Flatten(nn.Module):
     def forward(self, x):
@@ -30,7 +31,7 @@ class RankNetMobile(nn.Module):
         s1 = torch.dist(emb1, emb2, 2)
         s2 = torch.dist(emb1, emb3, 2)
         s3 = torch.dist(emb2, emb3, 2)
-        prob = self.output(s1 - s2) + self.output(s1 - s3)
+        prob = (self.output(s1 - s2) + self.output(s1 - s3)) / 2
         return prob
 
     def predict(self, input):

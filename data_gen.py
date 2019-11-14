@@ -38,7 +38,7 @@ def swap(img_1, img_2, img_3, annotation):
 class FECDataset(Dataset):
     def __init__(self, split):
         filename = 'data/{}.pkl'.format(split)
-        with open(filename, 'r') as file:
+        with open(filename, 'rb') as file:
             samples = pickle.load(file)
 
         self.samples = samples

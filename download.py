@@ -1,6 +1,5 @@
 import os
 import pickle
-from subprocess import Popen, PIPE
 
 import cv2 as cv
 from tqdm import tqdm
@@ -23,6 +22,11 @@ def download(tokens, idx, num):
     #     (output, err) = process.communicate()
     #     exit_code = process.wait()
 
+    filename = '{}_{}.jpg'.format(idx, num)
+    filename = os.path.join(image_folder, filename)
+    if os.path.isfile(filename) and os.path.getsize(filename) > 0:
+        return filename
+
     if os.path.isfile(fullname) and os.path.getsize(fullname) > 0:
         img = cv.imread(fullname)
         height, width = img.shape[:2]
@@ -30,12 +34,10 @@ def download(tokens, idx, num):
         top, bottom = int(round(top * height)), int(round(bottom * height))
         img = img[top:bottom, left:right, :]
         img = cv.resize(img, (im_size, im_size))
-        filename = '{}_{}.jpg'.format(idx, num)
-        filename = os.path.join(image_folder, filename)
         cv.imwrite(filename, img)
         return filename
-    else:
-        return None
+
+    return None
 
 
 def get_samples(image_1, image_2, image_3, triplet_type, tokens):

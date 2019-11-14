@@ -23,7 +23,7 @@ def download(tokens, idx, num):
         (output, err) = process.communicate()
         exit_code = process.wait()
 
-    if os.path.isfile(fullname):
+    if os.path.isfile(fullname) and os.path.getsize(fullname) > 0:
         img = cv.imread(fullname)
         height, width = img.shape[:2]
         left, right = int(round(left * width)), int(round(right * width))

@@ -29,7 +29,7 @@ class RankNetMobile(nn.Module):
         print('emb1.size(): ' + str(emb1.size()))
         emb2 = self.linear(self.model(input2))
         emb3 = self.linear(self.model(input3))
-        s1 = torch.dist(emb1, emb2)
+        s1 = torch.norm(emb1-emb2)
         print('s1.size(): ' + str(s1.size()))
         s2 = torch.dist(emb1, emb3)
         s3 = torch.dist(emb2, emb3)

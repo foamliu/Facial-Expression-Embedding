@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from torch import nn
-from torch.optim.lr_scheduler import MultiStepLR
+# from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.tensorboard import SummaryWriter
 
 from config import device, grad_clip, print_freq, num_workers
@@ -48,7 +48,7 @@ def train_net(args):
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False,
                                               num_workers=num_workers)
 
-    scheduler = MultiStepLR(optimizer, milestones=[30, 80], gamma=0.1)
+    # scheduler = MultiStepLR(optimizer, milestones=[30, 80], gamma=0.1)
 
     # Epochs
     for epoch in range(start_epoch, args.end_epoch):
@@ -85,7 +85,7 @@ def train_net(args):
 
         # Save checkpoint
         save_checkpoint(epoch, epochs_since_improvement, model, optimizer, best_acc, is_best)
-        scheduler.step(epoch)
+        # scheduler.step(epoch)
 
 
 def train(train_loader, model, optimizer, epoch, logger):

@@ -155,7 +155,7 @@ def valid(valid_loader, model, logger):
     accs = AverageMeter()
 
     # Batches
-    for i, (img_0, img_1, img_2, target) in enumerate(valid_loader):
+    for i, (img_0, img_1, img_2, margin) in enumerate(valid_loader):
         # Move to GPU, if available
         img_0 = img_0.to(device)
         img_1 = img_1.to(device)

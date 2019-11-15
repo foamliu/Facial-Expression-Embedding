@@ -166,7 +166,7 @@ def valid(valid_loader, model, criterion, logger):
 
         # Forward prop.
         x = model(img_0, img_1, img_2)
-        x = x.squeeze(dim=1)
+        # x = x.squeeze(dim=1)
 
         # Calculate loss
         loss = criterion(x, y)

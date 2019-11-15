@@ -30,9 +30,11 @@ class RankNetMobile(nn.Module):
         emb2 = self.linear(self.model(input2))
         emb3 = self.linear(self.model(input3))
         s1 = torch.dist(emb1, emb2)
+        print('s1.size(): ' + str(s1.size()))
         s2 = torch.dist(emb1, emb3)
         s3 = torch.dist(emb2, emb3)
         prob = (self.output(s1 - s2) + self.output(s1 - s3)) / 2
+        print('prob.size(): ' + str(prob.size()))
         return prob
 
     def predict(self, input):

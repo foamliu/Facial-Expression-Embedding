@@ -7,7 +7,8 @@ from torch.utils.tensorboard import SummaryWriter
 from config import device, grad_clip, print_freq, num_workers
 from data_gen import FECDataset
 from models import RankNetMobile
-from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, accuracy, get_learning_rate
+from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, get_learning_rate, \
+    triplet_margin_loss
 
 
 def train_net(args):
@@ -92,34 +93,34 @@ def train_net(args):
         scheduler.step(epoch)
 
 
-def train(train_loader, model, criterion, optimizer, epoch, logger):
+def train(train_loader, model, optimizer, epoch, logger):
     model.train()  # train mode (dropout and batchnorm is used)
 
     losses = AverageMeter()
-    accs = AverageMeter()
 
     # Batches
-    for i, (img_0, img_1, img_2, target) in enumerate(train_loader):
+    for i, (img_0, img_1, img_2, margin) in enumerate(train_loader):
         # Move to GPU, if available
         img_0 = img_0.to(device)
         img_1 = img_1.to(device)
         img_2 = img_2.to(device)
-        y = target.float().to(device)
+        margin = margin.float().to(device)
 
         # Forward prop.
-        x = model(img_0, img_1, img_2)
+        emb0 = model(img_0)
+        emb1 = model(img_1)
+        emb2 = model(img_2)
         # print(x.size())
         # print('x: ' + str(x))
 
         # Calculate loss
-        loss = criterion(x, y)
+        loss = triplet_margin_loss(emb0, emb1, emb2, margin)
         # print('x.size(): ' + str(x.size()))
         # print('y.size(): ' + str(y.size()))
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)
         # print('loss.size(): ' + str(loss.size()))
         # loss = loss.mean()
         # print('loss.size(): ' + str(loss.size()))
-        acc = accuracy(x, y)
 
         # Back prop.
         optimizer.zero_grad()
@@ -133,28 +134,24 @@ def train(train_loader, model, criterion, optimizer, epoch, logger):
 
         # Keep track of metrics
         losses.update(loss.item())
-        accs.update(acc)
 
         # Print status
         if i % print_freq == 0:
             if i % print_freq == 0:
                 status = 'Epoch: [{0}][{1}/{2}]\t' \
-                         'Loss {loss.val:.5f} ({loss.avg:.5f})\t' \
-                         'Accuracy {acc.val:.5f} ({acc.avg:.5f})\t'.format(epoch, i,
-                                                                           len(train_loader),
-                                                                           loss=losses,
-                                                                           acc=accs,
-                                                                           )
+                         'Loss {loss.val:.5f} ({loss.avg:.5f})\t'.format(epoch, i,
+                                                                         len(train_loader),
+                                                                         loss=losses
+                                                                         )
                 logger.info(status)
 
-    return losses.avg, accs.avg
+    return losses.avg
 
 
-def valid(valid_loader, model, criterion, logger):
+def valid(valid_loader, model, logger):
     model.eval()  # eval mode (dropout and batchnorm is NOT used)
 
     losses = AverageMeter()
-    accs = AverageMeter()
 
     # Batches
     for i, (img_0, img_1, img_2, target) in enumerate(valid_loader):
@@ -162,27 +159,28 @@ def valid(valid_loader, model, criterion, logger):
         img_0 = img_0.to(device)
         img_1 = img_1.to(device)
         img_2 = img_2.to(device)
-        y = target.float().to(device)
+        margin = margin.float().to(device)
 
         # Forward prop.
-        x = model(img_0, img_1, img_2)
-        # x = x.squeeze(dim=1)
+        emb0 = model(img_0)
+        emb1 = model(img_1)
+        emb2 = model(img_2)
+        # print(x.size())
+        # print('x: ' + str(x))
 
         # Calculate loss
-        loss = criterion(x, y)
+        loss = triplet_margin_loss(emb0, emb1, emb2, margin)
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)
         # loss = loss.mean()
-        acc = accuracy(x, y)
 
         # Keep track of metrics
         losses.update(loss.item())
-        accs.update(acc)
 
     # Print status
-    status = 'Validation\t Loss {loss.avg:.5f}\t Accuracy {acc.avg:.5f}\n'.format(loss=losses, acc=accs)
+    status = 'Validation\t Loss {loss.avg:.5f}\n'.format(loss=losses)
     logger.info(status)
 
-    return losses.avg, accs.avg
+    return losses.avg
 
 
 def main():

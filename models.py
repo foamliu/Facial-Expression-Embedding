@@ -1,4 +1,3 @@
-import torch
 from torch import nn
 from torchsummary import summary
 from torchvision import models
@@ -21,18 +20,12 @@ class RankNetMobile(nn.Module):
                                    Flatten(),
                                    nn.Linear(1280, 16),
                                    )
-        self.linear = nn.Linear(16, 1)
-        self.output = nn.Sigmoid()
+        # self.linear = nn.Linear(16, 1)
+        # self.output = nn.Sigmoid()
 
-    def forward(self, input1, input2, input3):
-        emb1 = self.model(input1)
-        emb2 = self.model(input2)
-        emb3 = self.model(input3)
-        s1 = torch.norm(emb1-emb2, dim=1)
-        s2 = torch.norm(emb1-emb3, dim=1)
-        s3 = torch.norm(emb2-emb3, dim=1)
-        prob = (self.output(s1 - s2) + self.output(s1 - s3)) / 2
-        return prob
+    def forward(self, input):
+        emb = self.model(input)
+        return emb
 
     def predict(self, input):
         return self.model(input)

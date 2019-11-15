@@ -1,4 +1,5 @@
 from torch import nn
+from torch.nn import functional as F
 from torchsummary import summary
 from torchvision import models
 
@@ -22,7 +23,9 @@ class FECNet(nn.Module):
                                    )
 
     def forward(self, input):
-        return self.model(input)
+        x = self.model(input)
+        x = F.normalize(x)
+        return x
 
 
 if __name__ == "__main__":

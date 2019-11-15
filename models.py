@@ -26,11 +26,12 @@ class RankNetMobile(nn.Module):
 
     def forward(self, input1, input2, input3):
         emb1 = self.linear(self.model(input1))
+        print('emb1.size(): ' + str(emb1.size()))
         emb2 = self.linear(self.model(input2))
         emb3 = self.linear(self.model(input3))
-        s1 = torch.dist(emb1, emb2, 2)
-        s2 = torch.dist(emb1, emb3, 2)
-        s3 = torch.dist(emb2, emb3, 2)
+        s1 = torch.dist(emb1, emb2)
+        s2 = torch.dist(emb1, emb3)
+        s3 = torch.dist(emb2, emb3)
         prob = (self.output(s1 - s2) + self.output(s1 - s3)) / 2
         return prob
 

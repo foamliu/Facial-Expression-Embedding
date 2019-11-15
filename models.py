@@ -25,11 +25,11 @@ class RankNetMobile(nn.Module):
         self.output = nn.Sigmoid()
 
     def forward(self, input1, input2, input3):
-        emb1 = self.linear(self.model(input1))
+        emb1 = self.model(input1)
         print('emb1.size(): ' + str(emb1.size()))
-        emb2 = self.linear(self.model(input2))
-        emb3 = self.linear(self.model(input3))
-        s1 = torch.norm(emb1-emb2)
+        emb2 = self.model(input2)
+        emb3 = self.model(input3)
+        s1 = torch.dist(emb1, emb2)
         print('s1.size(): ' + str(s1.size()))
         s2 = torch.dist(emb1, emb3)
         s3 = torch.dist(emb2, emb3)

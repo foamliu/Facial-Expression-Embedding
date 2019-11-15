@@ -133,5 +133,5 @@ def triplet_margin_loss(emb1, emb2, emb3, margin=0.0):
     dist_13 = torch.sum((emb1 - emb3) ** 2, dim=1)
     dist_23 = torch.sum((emb2 - emb3) ** 2, dim=1)
     loss = torch.abs(dist_12-dist_13+margin) + torch.abs(dist_12-dist_23+margin)
-    print('loss.size(): ' + str(loss.size()))
+    # print('loss.size(): ' + str(loss.size()))
     return loss.mean()

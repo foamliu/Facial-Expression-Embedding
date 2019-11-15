@@ -20,14 +20,8 @@ class FECNet(nn.Module):
                                    Flatten(),
                                    nn.Linear(1280, 16),
                                    )
-        # self.linear = nn.Linear(16, 1)
-        # self.output = nn.Sigmoid()
 
     def forward(self, input):
-        emb = self.model(input)
-        return emb
-
-    def predict(self, input):
         return self.model(input)
 
 

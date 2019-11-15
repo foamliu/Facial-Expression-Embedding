@@ -90,6 +90,8 @@ def get_learning_rate(optimizer):
 
 
 def accuracy(scores, targets, k=1):
+    print('scores.size(): ' + str(scores.size()))
+    print('targets.size(): ' + str(targets.size()))
     batch_size = targets.size(0)
     _, ind = scores.topk(k, 1, True, True)
     correct = ind.eq(targets.view(-1, 1).expand_as(ind))

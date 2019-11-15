@@ -9,9 +9,9 @@ class Flatten(nn.Module):
         return x.view(batch_size, -1)
 
 
-class RankNetMobile(nn.Module):
+class FECNet(nn.Module):
     def __init__(self):
-        super(RankNetMobile, self).__init__()
+        super(FECNet, self).__init__()
         mobilenet = models.mobilenet_v2(pretrained=True)
         # Remove linear layer
         modules = list(mobilenet.children())[:-1]
@@ -34,5 +34,5 @@ class RankNetMobile(nn.Module):
 if __name__ == "__main__":
     from config import device
 
-    model = RankNetMobile().to(device)
+    model = FECNet().to(device)
     summary(model, input_size=[(3, 224, 224), (3, 224, 224)])

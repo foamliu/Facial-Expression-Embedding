@@ -6,9 +6,9 @@ from torch.utils.tensorboard import SummaryWriter
 
 from config import device, grad_clip, print_freq, num_workers
 from data_gen import FECDataset
-from models import RankNetMobile
+from models import FECNet
 from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, get_learning_rate, \
-    triplet_margin_loss, accuracy
+    triplet_margin_loss, triplet_prediction_accuracy
 
 
 def train_net(args):
@@ -22,11 +22,11 @@ def train_net(args):
 
     # Initialize / load checkpoint
     if checkpoint is None:
-        model = RankNetMobile()
+        model = FECNet()
         model = nn.DataParallel(model)
 
-        # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-        optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, nesterov=True)
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+        # optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, nesterov=True)
 
     else:
         checkpoint = torch.load(checkpoint)
@@ -111,7 +111,7 @@ def train(train_loader, model, optimizer, epoch, logger):
 
         # Calculate loss
         loss = triplet_margin_loss(emb0, emb1, emb2, margin)
-        acc = accuracy(emb0, emb1, emb2)
+        acc = triplet_prediction_accuracy(emb0, emb1, emb2)
         # print('x.size(): ' + str(x.size()))
         # print('y.size(): ' + str(y.size()))
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)
@@ -171,7 +171,7 @@ def valid(valid_loader, model, logger):
 
         # Calculate loss
         loss = triplet_margin_loss(emb0, emb1, emb2, margin)
-        acc = accuracy(emb0, emb1, emb2)
+        acc = triplet_prediction_accuracy(emb0, emb1, emb2)
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)
         # loss = loss.mean()
 

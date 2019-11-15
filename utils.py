@@ -93,9 +93,9 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train face network')
     # general
     parser.add_argument('--end-epoch', type=int, default=1000, help='training epoch size.')
-    parser.add_argument('--lr', type=float, default=1e-3, help='start learning rate')
+    parser.add_argument('--lr', type=float, default=5e-4, help='start learning rate')
     parser.add_argument('--lr-step', type=int, default=10, help='period of learning rate decay')
-    parser.add_argument('--weight-decay', type=float, default=5e-4, help='weight decay')
+    parser.add_argument('--weight-decay', type=float, default=0.0, help='weight decay')
     parser.add_argument('--batch-size', type=int, default=32, help='batch size in each context')
     parser.add_argument('--checkpoint', type=str, default=None, help='checkpoint')
     args = parser.parse_args()
@@ -127,7 +127,7 @@ def triplet_margin_loss(emb1, emb2, emb3, margin=0.0):
     return loss.mean()
 
 
-def accuracy(emb1, emb2, emb3):
+def triplet_prediction_accuracy(emb1, emb2, emb3):
     dist_12 = torch.sum((emb1 - emb2) ** 2, dim=1)
     dist_13 = torch.sum((emb1 - emb3) ** 2, dim=1)
     dist_23 = torch.sum((emb2 - emb3) ** 2, dim=1)

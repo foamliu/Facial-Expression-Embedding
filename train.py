@@ -58,7 +58,6 @@ def train_net(args):
         # One epoch's training
         train_loss, train_acc = train(train_loader=train_loader,
                                       model=model,
-                                      criterion=criterion,
                                       optimizer=optimizer,
                                       epoch=epoch,
                                       logger=logger)
@@ -73,7 +72,6 @@ def train_net(args):
         # One epoch's validation
         valid_loss, valid_acc = valid(valid_loader=test_loader,
                                       model=model,
-                                      criterion=criterion,
                                       logger=logger)
 
         writer.add_scalar('model/valid_loss', valid_loss, epoch)

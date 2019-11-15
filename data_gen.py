@@ -11,15 +11,15 @@ from config import image_folder, im_size
 # Just normalization for validation
 data_transforms = {
     'train': transforms.Compose([
-        transforms.Resize(256),
-        transforms.RandomCrop(im_size),
+        # transforms.Resize(256),
+        # transforms.RandomCrop(im_size),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ]),
     'test': transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(im_size),
+        # transforms.Resize(256),
+        # transforms.CenterCrop(im_size),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ]),

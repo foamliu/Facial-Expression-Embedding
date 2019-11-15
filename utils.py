@@ -89,14 +89,7 @@ def get_learning_rate(optimizer):
     return optimizer.param_groups[0]['lr']
 
 
-def accuracy(scores, targets, k=1):
-    print('scores.size(): ' + str(scores.size()))
-    print('targets.size(): ' + str(targets.size()))
-    batch_size = targets.size(0)
-    _, ind = scores.topk(k, 1, True, True)
-    correct = ind.eq(targets.view(-1, 1).expand_as(ind))
-    correct_total = correct.view(-1).float().sum()  # 0D tensor
-    return correct_total.item() * (100.0 / batch_size)
+
 
 
 def parse_args():
@@ -135,3 +128,13 @@ def triplet_margin_loss(emb1, emb2, emb3, margin=0.0):
     loss = torch.abs(dist_12-dist_13+margin) + torch.abs(dist_12-dist_23+margin)
     # print('loss.size(): ' + str(loss.size()))
     return loss.mean()
+
+
+def accuracy(emb1, emb2, emb3):
+    dist_12 = torch.sum((emb1 - emb2) ** 2, dim=1)
+    dist_13 = torch.sum((emb1 - emb3) ** 2, dim=1)
+    dist_23 = torch.sum((emb2 - emb3) ** 2, dim=1)
+    batch_size = emb1.size(0)
+    correct = dist_12.lt(dist_13) * dist_12.lt(dist_23)
+    correct_total = correct.view(-1).float().sum()
+    return correct_total * (100.0 / batch_size)

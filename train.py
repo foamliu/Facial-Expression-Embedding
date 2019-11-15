@@ -8,7 +8,7 @@ from config import device, grad_clip, print_freq, num_workers
 from data_gen import FECDataset
 from models import RankNetMobile
 from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, get_learning_rate, \
-    triplet_margin_loss
+    triplet_margin_loss, accuracy
 
 
 def train_net(args):
@@ -39,9 +39,6 @@ def train_net(args):
 
     # Move to GPU, if available
     model = model.to(device)
-
-    # Loss function
-    criterion = nn.BCELoss().to(device)
 
     # Custom dataloaders
     train_dataset = FECDataset('train')
@@ -95,6 +92,7 @@ def train(train_loader, model, optimizer, epoch, logger):
     model.train()  # train mode (dropout and batchnorm is used)
 
     losses = AverageMeter()
+    accs = AverageMeter()
 
     # Batches
     for i, (img_0, img_1, img_2, margin) in enumerate(train_loader):
@@ -113,6 +111,7 @@ def train(train_loader, model, optimizer, epoch, logger):
 
         # Calculate loss
         loss = triplet_margin_loss(emb0, emb1, emb2, margin)
+        acc = accuracy(emb0, emb1, emb2)
         # print('x.size(): ' + str(x.size()))
         # print('y.size(): ' + str(y.size()))
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)
@@ -132,24 +131,28 @@ def train(train_loader, model, optimizer, epoch, logger):
 
         # Keep track of metrics
         losses.update(loss.item())
+        accs.update(acc)
 
         # Print status
         if i % print_freq == 0:
             if i % print_freq == 0:
                 status = 'Epoch: [{0}][{1}/{2}]\t' \
-                         'Loss {loss.val:.5f} ({loss.avg:.5f})\t'.format(epoch, i,
-                                                                         len(train_loader),
-                                                                         loss=losses
-                                                                         )
+                         'Loss {loss.val:.5f} ({loss.avg:.5f})\t' \
+                         'Accuracy {acc.val:.5f} ({acc.avg:.5f})\t'.format(epoch, i,
+                                                                           len(train_loader),
+                                                                           loss=losses,
+                                                                           acc=accs,
+                                                                           )
                 logger.info(status)
 
-    return losses.avg
+    return losses.avg, accs.avg
 
 
 def valid(valid_loader, model, logger):
     model.eval()  # eval mode (dropout and batchnorm is NOT used)
 
     losses = AverageMeter()
+    accs = AverageMeter()
 
     # Batches
     for i, (img_0, img_1, img_2, target) in enumerate(valid_loader):
@@ -168,17 +171,19 @@ def valid(valid_loader, model, logger):
 
         # Calculate loss
         loss = triplet_margin_loss(emb0, emb1, emb2, margin)
+        acc = accuracy(emb0, emb1, emb2)
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)
         # loss = loss.mean()
 
         # Keep track of metrics
         losses.update(loss.item())
+        accs.update(acc)
 
     # Print status
-    status = 'Validation\t Loss {loss.avg:.5f}\n'.format(loss=losses)
+    status = 'Validation\t Loss {loss.avg:.5f}\t Accuracy {acc.avg:.5f}\n'.format(loss=losses, acc=accs)
     logger.info(status)
 
-    return losses.avg
+    return losses.avg, accs.avg
 
 
 def main():

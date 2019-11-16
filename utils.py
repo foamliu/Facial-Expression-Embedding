@@ -96,7 +96,7 @@ def parse_args():
     parser.add_argument('--lr', type=float, default=5e-4, help='start learning rate')
     parser.add_argument('--lr-step', type=int, default=10, help='period of learning rate decay')
     parser.add_argument('--weight-decay', type=float, default=0.0, help='weight decay')
-    parser.add_argument('--batch-size', type=int, default=32, help='batch size in each context')
+    parser.add_argument('--batch-size', type=int, default=64, help='batch size in each context')
     parser.add_argument('--checkpoint', type=str, default=None, help='checkpoint')
     args = parser.parse_args()
     return args

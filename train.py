@@ -163,11 +163,12 @@ def valid(valid_loader, model, logger):
         margin = margin.float().to(device)
 
         # Forward prop.
-        emb0 = model(img_0)
-        emb1 = model(img_1)
-        emb2 = model(img_2)
-        # print(x.size())
-        # print('x: ' + str(x))
+        with torch.no_grad():
+            emb0 = model(img_0)
+            emb1 = model(img_1)
+            emb2 = model(img_2)
+            # print(x.size())
+            # print('x: ' + str(x))
 
         # Calculate loss
         loss = triplet_margin_loss(emb0, emb1, emb2, margin)

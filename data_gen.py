@@ -1,11 +1,8 @@
-import os
 import pickle
 
 import cv2 as cv
 from torch.utils.data import Dataset
 from torchvision import transforms
-
-from config import image_folder, im_size
 
 # Data augmentation and normalization for training
 # Just normalization for validation
@@ -69,9 +66,9 @@ class FECDataset(Dataset):
         else:
             margin = 0.0
         # for a triplet (I1,I2,I3) with the most similar pair (I1,I2).
-        img_1, img_2, img_3 = swap(img_1, img_2, img_3, annotation)
+        anchor, positive, negative = swap(img_1, img_2, img_3, annotation)
 
-        return img_1, img_2, img_3, margin
+        return anchor, positive, negative, margin
 
     def __len__(self):
         return len(self.samples)

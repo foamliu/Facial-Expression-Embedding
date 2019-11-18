@@ -9,7 +9,7 @@ from config import device, grad_clip, print_freq, num_workers
 from data_gen import FECDataset
 from models import FECNet
 from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, get_learning_rate, \
-    triplet_prediction_accuracy
+    triplet_prediction_accuracy, triplet_margin_loss
 
 
 def train_net(args):
@@ -111,8 +111,8 @@ def train(train_loader, model, optimizer, epoch, logger):
         # print('x: ' + str(x))
 
         # Calculate loss
-        # loss = triplet_margin_loss(emb0, emb1, emb2, margin)
-        loss = F.triplet_margin_loss(anchor=emb0, positive=emb1, negative=emb2, margin=margin, swap=True)
+        loss = triplet_margin_loss(emb0, emb1, emb2, margin)
+        # loss = F.triplet_margin_loss(anchor=emb0, positive=emb1, negative=emb2, margin=margin, swap=True)
         acc = triplet_prediction_accuracy(emb0, emb1, emb2)
         # print('x.size(): ' + str(x.size()))
         # print('y.size(): ' + str(y.size()))
@@ -173,8 +173,8 @@ def valid(valid_loader, model, logger):
             # print('x: ' + str(x))
 
         # Calculate loss
-        # loss = triplet_margin_loss(emb0, emb1, emb2, margin)
-        loss = F.triplet_margin_loss(anchor=emb0, positive=emb1, negative=emb2, margin=margin, swap=False)
+        loss = triplet_margin_loss(emb0, emb1, emb2, margin)
+        # loss = F.triplet_margin_loss(anchor=emb0, positive=emb1, negative=emb2, margin=margin, swap=False)
         acc = triplet_prediction_accuracy(emb0, emb1, emb2)
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)
         # loss = loss.mean()

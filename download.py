@@ -41,13 +41,17 @@ def download(tokens, idx, num):
 
 
 def get_samples(image_1, image_2, image_3, triplet_type, tokens):
-    sample_list = []
+    annotations = []
     for i in range(0, len(tokens), 2):
         # annotator_id = tokens[i]
         annotation = int(tokens[i + 1])
         assert (annotation in [1, 2, 3])
-        sample_list.append({'image_1': image_1, 'image_2': image_2, 'image_3': image_3, 'triplet_type': triplet_type,
-                            'annotation': annotation})
+        annotations.append(annotation)
+
+    annotation = int(round(sum(annotations) / len(annotations)))
+    assert (annotation in [1, 2, 3])
+    sample_list = [{'image_1': image_1, 'image_2': image_2, 'image_3': image_3, 'triplet_type': triplet_type,
+                    'annotation': annotation}]
     return sample_list
 
 

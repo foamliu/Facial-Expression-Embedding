@@ -3,8 +3,13 @@ from subprocess import Popen, PIPE
 
 from tqdm import tqdm
 
-from config import download_folder
-from utils import ensure_folder
+download_folder = 'data/FEC_dataset/download'
+
+
+def ensure_folder(folder):
+    import os
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
 
 
 def download(tokens, idx, num):

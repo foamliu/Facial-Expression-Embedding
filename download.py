@@ -17,10 +17,10 @@ def download(tokens, idx, num):
 
     filename = url[url.rfind("/") + 1:].strip()
     fullname = os.path.join(download_folder, filename)
-    # if not os.path.isfile(fullname):
-    #     process = Popen(["wget", '-N', url, "-P", download_folder], stdout=PIPE)
-    #     (output, err) = process.communicate()
-    #     exit_code = process.wait()
+    if not os.path.isfile(fullname):
+        process = Popen(["wget", '-N', url, "-P", download_folder], stdout=PIPE)
+        (output, err) = process.communicate()
+        exit_code = process.wait()
 
     filename = '{}_{}.jpg'.format(idx, num)
     filename = os.path.join(image_folder, filename)

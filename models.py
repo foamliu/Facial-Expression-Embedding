@@ -13,12 +13,6 @@ class FECNet(nn.Module):
         model.load_state_dict(torch.load(filename))
         self.model = model
 
-        # # Remove linear layer
-        # modules = list(model.children())
-        # self.model = nn.Sequential(*modules,
-        #                            # nn.Linear(1280, 16),
-        #                            )
-
     def forward(self, input):
         x = self.model(input)
         # x = F.normalize(x)

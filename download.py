@@ -29,7 +29,7 @@ def download(tokens, idx, num):
     # if os.path.isfile(filename) and os.path.getsize(filename) > 0:
     #     return filename
 
-    if os.path.isfile(fullname) and os.path.getsize(fullname) > 0:
+    if os.path.isfile(fullname) and os.path.getsize(fullname) > 1000:
         img = cv.imread(fullname)
         height, width = img.shape[:2]
         left, right = int(round(left * width)), int(round(right * width))

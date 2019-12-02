@@ -5,12 +5,6 @@ from torchscope import scope
 from mobilefacenet import MobileFaceNet
 
 
-class Flatten(nn.Module):
-    def forward(self, x):
-        batch_size = x.shape[0]
-        return x.view(batch_size, -1)
-
-
 class FECNet(nn.Module):
     def __init__(self):
         super(FECNet, self).__init__()
@@ -21,8 +15,6 @@ class FECNet(nn.Module):
         # Remove linear layer
         modules = list(model.children())
         self.model = nn.Sequential(*modules,
-                                   # nn.AvgPool2d(kernel_size=7),
-                                   # Flatten(),
                                    # nn.Linear(1280, 16),
                                    )
 

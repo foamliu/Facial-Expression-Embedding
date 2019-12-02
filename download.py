@@ -25,6 +25,7 @@ def download(tokens, idx, num):
 
     filename = '{}_{}.jpg'.format(idx, num)
     filename = os.path.join(image_folder, filename)
+    print(filename)
     # if os.path.isfile(filename) and os.path.getsize(filename) > 0:
     #     return filename
 

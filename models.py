@@ -1,6 +1,6 @@
 from torch import nn
 from torch.nn import functional as F
-from torchscope import scope
+from torchsummary import summary
 from torchvision import models
 from mobilefacenet import MobileFaceNet
 import torch
@@ -36,4 +36,4 @@ if __name__ == "__main__":
     from config import device
 
     model = FECNet().to(device)
-    scope(model, input_size=[(3, 112, 112), (3, 112, 112)])
+    summary(model, input_size=[(3, 112, 112), (3, 112, 112)])

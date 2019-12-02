@@ -8,15 +8,11 @@ from torchvision import transforms
 # Just normalization for validation
 data_transforms = {
     'train': transforms.Compose([
-        # transforms.Resize(256),
-        # transforms.RandomCrop(im_size),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ]),
     'test': transforms.Compose([
-        # transforms.Resize(256),
-        # transforms.CenterCrop(im_size),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ]),
@@ -56,15 +52,16 @@ class FECDataset(Dataset):
         img_2 = self.get_image(sample['image_2'])
         img_3 = self.get_image(sample['image_3'])
         triplet_type = sample['triplet_type']
+        assert (triplet_type in ['ONE_CLASS_TRIPLET', 'TWO_CLASS_TRIPLET', 'THREE_CLASS_TRIPLET'])
         # annotation = int(round(sample['annotation'].mean()))
         annotation = sample['annotation']
         assert (annotation in [1, 2, 3])
+
         if triplet_type == 'ONE_CLASS_TRIPLET':
             margin = 0.1
-        elif triplet_type in ['TWO_CLASS_TRIPLET', 'THREE_CLASS_TRIPLET']:
+        else:  # triplet_type in ['TWO_CLASS_TRIPLET', 'THREE_CLASS_TRIPLET']
             margin = 0.2
-        else:
-            margin = 0.0
+
         # for a triplet (I1,I2,I3) with the most similar pair (I1,I2).
         anchor, positive, negative = swap(img_1, img_2, img_3, annotation)
 

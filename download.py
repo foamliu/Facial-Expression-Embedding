@@ -35,7 +35,9 @@ def download(tokens, idx, num):
         left, right = int(round(left * width)), int(round(right * width))
         top, bottom = int(round(top * height)), int(round(bottom * height))
         img = img[top:bottom, left:right, :]
-        bounding_boxes, landmarks = detect_faces(img)
+        _, landmarks = detect_faces(img)
+        if len(landmarks) != 1:
+            return None
         img = align_face(img, landmarks)
         cv.imwrite(filename, img)
         return filename

@@ -9,14 +9,14 @@ class FECNet(nn.Module):
     def __init__(self):
         super(FECNet, self).__init__()
         filename = 'mobilefacenet.pt'
-        model = MobileFaceNet()
+        self.model = MobileFaceNet()
         model.load_state_dict(torch.load(filename))
 
-        # Remove linear layer
-        modules = list(model.children())
-        self.model = nn.Sequential(*modules,
-                                   # nn.Linear(1280, 16),
-                                   )
+        # # Remove linear layer
+        # modules = list(model.children())
+        # self.model = nn.Sequential(*modules,
+        #                            # nn.Linear(1280, 16),
+        #                            )
 
     def forward(self, input):
         x = self.model(input)

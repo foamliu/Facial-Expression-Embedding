@@ -1,9 +1,9 @@
-from torch import nn
-from torch.nn import functional as F
-from torchscope import scope
-from torchvision import models
-from mobilefacenet import MobileFaceNet
 import torch
+from torch import nn
+from torchscope import scope
+
+from mobilefacenet import MobileFaceNet
+
 
 class Flatten(nn.Module):
     def forward(self, x):
@@ -33,7 +33,5 @@ class FECNet(nn.Module):
 
 
 if __name__ == "__main__":
-    from config import device
-
-    model = FECNet().to(device)
+    model = FECNet()
     scope(model, input_size=(3, 112, 112))

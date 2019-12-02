@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 from torch import nn
-from torch.nn import functional as F
 # from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.tensorboard import SummaryWriter
 
@@ -103,10 +102,22 @@ def train(train_loader, model, optimizer, epoch, logger):
         img_2 = img_2.to(device)
         margin = margin.float().to(device)
 
+        imgs = [img_0, img_1, img_2]
+        perm = [0, 1, 2]
+        embs = [None, None, None]
+        np.random.shuffle(perm)
+
         # Forward prop.
-        emb0 = model(img_0)
-        emb1 = model(img_1)
-        emb2 = model(img_2)
+        # emb0 = model(img_0)
+        # emb1 = model(img_1)
+        # emb2 = model(img_2)
+
+        for i in perm:
+            img = imgs[i]
+            embs[i] = model(img)
+
+        emb0, emb1, emb2 = embs[0], embs[1], embs[2]
+
         # print(x.size())
         # print('x: ' + str(x))
 

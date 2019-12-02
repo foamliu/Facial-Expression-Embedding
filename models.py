@@ -9,8 +9,9 @@ class FECNet(nn.Module):
     def __init__(self):
         super(FECNet, self).__init__()
         filename = 'mobilefacenet.pt'
-        self.model = MobileFaceNet()
+        model = MobileFaceNet()
         model.load_state_dict(torch.load(filename))
+        self.model = model
 
         # # Remove linear layer
         # modules = list(model.children())

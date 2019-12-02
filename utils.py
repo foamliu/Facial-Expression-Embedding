@@ -94,7 +94,7 @@ def get_learning_rate(optimizer):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Train face network')
+    parser = argparse.ArgumentParser(description='Facial Expression Embedding')
     # general
     parser.add_argument('--end-epoch', type=int, default=1000, help='training epoch size.')
     parser.add_argument('--lr', type=float, default=5e-4, help='start learning rate')

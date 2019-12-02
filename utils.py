@@ -1,7 +1,11 @@
 import argparse
 import logging
 
+import numpy as np
 import torch
+
+from align_faces import get_reference_facial_points, warp_and_crop_face
+from config import im_size
 
 
 def clip_gradient(optimizer, grad_clip):
@@ -116,6 +120,41 @@ def ensure_folder(folder):
     import os
     if not os.path.isdir(folder):
         os.mkdir(folder)
+
+
+def align_face(raw, facial5points):
+    # raw = cv.imread(img_fn, True)  # BGR
+    facial5points = np.reshape(facial5points, (2, 5))
+
+    crop_size = (im_size, im_size)
+
+    default_square = True
+    inner_padding_factor = 0.25
+    outer_padding = (0, 0)
+    output_size = (im_size, im_size)
+
+    # get the reference 5 landmarks position in the crop settings
+    reference_5pts = get_reference_facial_points(
+        output_size, inner_padding_factor, outer_padding, default_square)
+
+    # dst_img = warp_and_crop_face(raw, facial5points)
+    dst_img = warp_and_crop_face(raw, facial5points, reference_pts=reference_5pts, crop_size=crop_size)
+    return dst_img
+
+
+def select_significant_face(bounding_boxes):
+    best_index = -1
+    best_rank = float('-inf')
+    for i, b in enumerate(bounding_boxes):
+        bbox_w, bbox_h = b[2] - b[0], b[3] - b[1]
+        area = bbox_w * bbox_h
+        score = b[4]
+        rank = score * area
+        if rank > best_rank:
+            best_rank = rank
+            best_index = i
+
+    return best_index
 
 
 def triplet_margin_loss(anchor, positive, negative, margin=0.0):

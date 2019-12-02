@@ -1,12 +1,12 @@
 import os
 import pickle
-from subprocess import Popen, PIPE
 
 import cv2 as cv
 from tqdm import tqdm
 
-from config import download_folder, image_folder, im_size
-from utils import ensure_folder
+from config import download_folder, image_folder
+from retinaface.detector import detect_faces
+from utils import ensure_folder, align_face
 
 
 def download(tokens, idx, num):
@@ -25,8 +25,8 @@ def download(tokens, idx, num):
 
     filename = '{}_{}.jpg'.format(idx, num)
     filename = os.path.join(image_folder, filename)
-    if os.path.isfile(filename) and os.path.getsize(filename) > 0:
-        return filename
+    # if os.path.isfile(filename) and os.path.getsize(filename) > 0:
+    #     return filename
 
     if os.path.isfile(fullname) and os.path.getsize(fullname) > 0:
         img = cv.imread(fullname)
@@ -34,7 +34,8 @@ def download(tokens, idx, num):
         left, right = int(round(left * width)), int(round(right * width))
         top, bottom = int(round(top * height)), int(round(bottom * height))
         img = img[top:bottom, left:right, :]
-        img = cv.resize(img, (im_size, im_size))
+        bounding_boxes, landmarks = detect_faces(img)
+        img = align_face(img, landmarks)
         cv.imwrite(filename, img)
         return filename
 

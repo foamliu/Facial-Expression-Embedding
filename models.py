@@ -1,7 +1,8 @@
 import torch
+import torch.nn.functional as F
 from torch import nn
 from torchscope import scope
-import torch.nn.functional as F
+
 from mobilefacenet import MobileFaceNet
 
 
@@ -12,10 +13,12 @@ class FECNet(nn.Module):
         model = MobileFaceNet()
         model.load_state_dict(torch.load(filename))
         self.model = model
+        self.relu = nn.PReLU()
         self.fc = nn.Linear(128, 16)
 
     def forward(self, input):
         x = self.model(input)
+        x = self.relu(x)
         x = self.fc(x)
         x = F.normalize(x)
         return x

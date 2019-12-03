@@ -51,7 +51,7 @@ class RankNetMobile(nn.Module):
         model = MobileFaceNet()
         model.load_state_dict(torch.load(filename))
         # Remove linear layer
-        modules = list(model.children())[:-1]
+        modules = list(model.children())
         self.model = nn.Sequential(*modules,
                                    # nn.AvgPool2d(kernel_size=7),
                                    # DepthwiseSeparableConv(1280, 1280, kernel_size=4, padding=0),

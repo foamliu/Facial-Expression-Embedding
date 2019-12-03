@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torchscope import scope
+from torchsummary import summary
 from torchvision import models
 
 from mobilefacenet import MobileFaceNet
@@ -79,4 +79,4 @@ class RankNetMobile(nn.Module):
 
 if __name__ == "__main__":
     model = FECNet()
-    scope(model, input_size=(3, 112, 112))
+    summary(model, input_size=[(3, 112, 112), (3, 112, 112), (3, 112, 112)])

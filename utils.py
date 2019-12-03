@@ -158,9 +158,7 @@ def select_significant_face(bounding_boxes):
 
 
 def triplet_margin_loss(anchor_emb, positive_emb, negative_emb, margin=0.0):
-    print('anchor_emb.size(): ' + str(anchor_emb.size()))
     dist_12 = torch.sum((anchor_emb - positive_emb) ** 2, dim=1)
-    print('dist_12.size(): ' + str(dist_12.size()))
     dist_13 = torch.sum((anchor_emb - negative_emb) ** 2, dim=1)
     dist_23 = torch.sum((positive_emb - negative_emb) ** 2, dim=1)
     loss = torch.abs(dist_12 - dist_13 + margin) + torch.abs(dist_12 - dist_23 + margin)

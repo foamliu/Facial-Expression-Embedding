@@ -95,36 +95,32 @@ def train(train_loader, model, optimizer, epoch, logger):
     accs = AverageMeter()
 
     # Batches
-    for i, (img_0, img_1, img_2, margin) in enumerate(train_loader):
+    for i, (anchor_img, positive_img, negative_img, margin) in enumerate(train_loader):
         # Move to GPU, if available
-        img_0 = img_0.to(device)
-        img_1 = img_1.to(device)
-        img_2 = img_2.to(device)
+        anchor_img = anchor_img.to(device)
+        positive_img = positive_img.to(device)
+        negative_img = negative_img.to(device)
         margin = margin.float().to(device)
 
-        imgs = [img_0, img_1, img_2]
-        perm = [0, 1, 2]
+        imgs = [anchor_img, positive_img, negative_img]
         embs = [None, None, None]
+
+        perm = [0, 1, 2]
         np.random.shuffle(perm)
 
         # Forward prop.
-        # emb0 = model(img_0)
-        # emb1 = model(img_1)
-        # emb2 = model(img_2)
-
         for idx in perm:
-            img = imgs[idx]
-            embs[idx] = model(img)
+            embs[idx] = model(imgs[idx])
 
-        emb0, emb1, emb2 = embs[0], embs[1], embs[2]
+        anchor_emb, positive_emb, negative_emb = embs[0], embs[1], embs[2]
 
         # print(x.size())
         # print('x: ' + str(x))
 
         # Calculate loss
-        loss = triplet_margin_loss(emb0, emb1, emb2, margin)
+        loss = triplet_margin_loss(anchor_emb, positive_emb, negative_emb, margin)
         # loss = F.triplet_margin_loss(anchor=emb0, positive=emb1, negative=emb2, margin=0.1, swap=True)
-        acc = triplet_prediction_accuracy(emb0, emb1, emb2)
+        acc = triplet_prediction_accuracy(anchor_emb, positive_emb, negative_emb)
         # print('x.size(): ' + str(x.size()))
         # print('y.size(): ' + str(y.size()))
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)

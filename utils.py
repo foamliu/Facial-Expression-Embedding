@@ -157,20 +157,20 @@ def select_significant_face(bounding_boxes):
     return best_index
 
 
-def triplet_margin_loss(anchor, positive, negative, margin=0.0):
-    dist_12 = torch.sum((anchor - positive) ** 2, dim=1)
-    dist_13 = torch.sum((anchor - negative) ** 2, dim=1)
-    dist_23 = torch.sum((positive - negative) ** 2, dim=1)
+def triplet_margin_loss(anchor_emb, positive_emb, negative_emb, margin=0.0):
+    dist_12 = torch.sum((anchor_emb - positive_emb) ** 2, dim=1)
+    dist_13 = torch.sum((anchor_emb - negative_emb) ** 2, dim=1)
+    dist_23 = torch.sum((positive_emb - negative_emb) ** 2, dim=1)
     loss = torch.abs(dist_12 - dist_13 + margin) + torch.abs(dist_12 - dist_23 + margin)
     # print('loss.size(): ' + str(loss.size()))
     return loss.mean()
 
 
-def triplet_prediction_accuracy(anchor, positive, negative):
-    dist_12 = torch.sum((anchor - positive) ** 2, dim=1)
-    dist_13 = torch.sum((anchor - negative) ** 2, dim=1)
-    dist_23 = torch.sum((positive - negative) ** 2, dim=1)
-    batch_size = anchor.size(0)
+def triplet_prediction_accuracy(anchor_emb, positive_emb, negative_emb):
+    dist_12 = torch.sum((anchor_emb - positive_emb) ** 2, dim=1)
+    dist_13 = torch.sum((anchor_emb - negative_emb) ** 2, dim=1)
+    dist_23 = torch.sum((positive_emb - negative_emb) ** 2, dim=1)
+    batch_size = anchor_emb.size(0)
     correct = dist_12.lt(dist_13) * dist_12.lt(dist_23)
     correct_total = correct.view(-1).float().sum()
     return correct_total * (100.0 / batch_size)

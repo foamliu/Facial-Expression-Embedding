@@ -3,6 +3,7 @@ import torch
 from torch import nn
 from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.tensorboard import SummaryWriter
+from tqdm import tqdm
 
 from config import device, grad_clip, print_freq, num_workers
 from data_gen import FECDataset
@@ -165,7 +166,7 @@ def valid(valid_loader, model, criterion, logger):
     accs = AverageMeter()
 
     # Batches
-    for i, (img_0, img_1, img_2, y) in enumerate(valid_loader):
+    for (img_0, img_1, img_2, y) in tqdm(valid_loader):
         # Move to GPU, if available
         img_0 = img_0.to(device)
         img_1 = img_1.to(device)

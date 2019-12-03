@@ -63,8 +63,11 @@ class RankNetMobile(nn.Module):
 
     def forward(self, input1, input2, input3):
         e1 = self.model(input1)
+        e1 = torch.norm(e1, dim=1)
         e2 = self.model(input2)
+        e2 = torch.norm(e2, dim=1)
         e3 = self.model(input3)
+        e3 = torch.norm(e3, dim=1)
         d12 = F.pairwise_distance(e1, e2, p=2)
         d13 = F.pairwise_distance(e1, e3, p=2)
         # d23 = F.pairwise_distance(e2, e3, p=2)

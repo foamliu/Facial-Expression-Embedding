@@ -52,17 +52,6 @@ class RankNetMobile(nn.Module):
         if pretrained:
             model.load_state_dict(torch.load(filename))
 
-        # Remove linear layer
-        # modules = list(model.children())
-        # self.model = nn.Sequential(*modules,
-        # #                            # nn.AvgPool2d(kernel_size=7),
-        # #                            # DepthwiseSeparableConv(1280, 1280, kernel_size=4, padding=0),
-        # #                            # Flatten(),
-        # #                            # nn.Dropout(0.5),
-        # #                            # # nn.LeakyReLU(0.2, inplace=True),
-        # #                            # nn.Linear(1280, 16),
-        # #                            # nn.Sigmoid(),
-        #                             )
         self.model = model
         self.dropout = nn.Dropout(0.5)
         self.relu = nn.LeakyReLU(0.2, inplace=True)

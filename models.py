@@ -53,8 +53,8 @@ class RankNetMobile(nn.Module):
             model.load_state_dict(torch.load(filename))
 
         self.model = model
-        self.dropout = nn.Dropout(0.5)
-        self.relu = nn.LeakyReLU(0.2, inplace=True)
+        # self.dropout = nn.Dropout(0.5)
+        # self.relu = nn.LeakyReLU(0.2, inplace=True)
         self.fc = nn.Linear(128, 16)
         self.sigmoid = nn.Sigmoid()
 
@@ -69,8 +69,8 @@ class RankNetMobile(nn.Module):
 
     def predict(self, input):
         x = self.model(input)
-        x = self.dropout(x)
-        x = self.relu(x)
+        # x = self.dropout(x)
+        # x = self.relu(x)
         x = self.fc(x)
         x = F.normalize(x, dim=1)
         return x

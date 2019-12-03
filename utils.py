@@ -1,6 +1,6 @@
 import argparse
 import logging
-
+import math
 import numpy as np
 import torch
 
@@ -97,7 +97,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Facial Expression Embedding')
     # general
     parser.add_argument('--end-epoch', type=int, default=1000, help='training epoch size.')
-    parser.add_argument('--lr', type=float, default=5e-4, help='start learning rate')
+    parser.add_argument('--lr', type=float, default=1e-4, help='start learning rate')
     parser.add_argument('--lr-step', type=int, default=10, help='period of learning rate decay')
     parser.add_argument('--weight-decay', type=float, default=4e-5, help='weight decay')
     parser.add_argument('--batch-size', type=int, default=32, help='batch size in each context')
@@ -173,4 +173,17 @@ def triplet_prediction_accuracy(anchor_emb, positive_emb, negative_emb):
     batch_size = anchor_emb.size(0)
     correct = dist_12.lt(dist_13) * dist_12.lt(dist_23)
     correct_total = correct.view(-1).float().sum()
+    return correct_total * (100.0 / batch_size)
+
+
+def accuracy(pred, target):
+    batch_size = pred.size(0)
+    correct = []
+    for i in range(batch_size):
+        if math.fabs(pred[i].item() - target[i].item()) < 0.5:
+            correct += [1.0]
+    # correct = torch.abs(pred - target).lt(0.5)
+    # correct_total = correct.view(-1).float().sum()  # 0D tensor
+    correct_total = sum(correct)
+    # return correct_total.item() * (100.0 / batch_size)
     return correct_total * (100.0 / batch_size)

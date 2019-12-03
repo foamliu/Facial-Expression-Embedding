@@ -57,15 +57,12 @@ class FECDataset(Dataset):
         annotation = sample['annotation']
         assert (annotation in [1, 2, 3])
 
-        if triplet_type == 'ONE_CLASS_TRIPLET':
-            margin = 0.1
-        else:  # triplet_type in ['TWO_CLASS_TRIPLET', 'THREE_CLASS_TRIPLET']
-            margin = 0.2
+        if annotation == 3:
+            y = 0.
+        else:
+            y = 1.
 
-        # for a triplet (I1,I2,I3) with the most similar pair (I1,I2).
-        anchor, positive, negative = swap(img_1, img_2, img_3, annotation)
-
-        return anchor, positive, negative, margin
+        return img_1, img_2, img_3, y
 
     def __len__(self):
         return len(self.samples)

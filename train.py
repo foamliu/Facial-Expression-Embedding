@@ -1,14 +1,13 @@
 import numpy as np
 import torch
 from torch import nn
-# from torch.optim.lr_scheduler import MultiStepLR
+from torch.optim.lr_scheduler import MultiStepLR
 from torch.utils.tensorboard import SummaryWriter
 
 from config import device, grad_clip, print_freq, num_workers
 from data_gen import FECDataset
-from models import FECNet
-from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, get_learning_rate, \
-    triplet_prediction_accuracy, triplet_margin_loss
+from models import RankNetMobile
+from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, get_learning_rate, accuracy
 
 
 def train_net(args):
@@ -22,11 +21,11 @@ def train_net(args):
 
     # Initialize / load checkpoint
     if checkpoint is None:
-        model = FECNet()
+        model = RankNetMobile()
         model = nn.DataParallel(model)
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-        # optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, nesterov=True)
+        # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+        optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, nesterov=True)
 
     else:
         checkpoint = torch.load(checkpoint)
@@ -40,6 +39,9 @@ def train_net(args):
     # Move to GPU, if available
     model = model.to(device)
 
+    # Loss function
+    criterion = nn.BCELoss().to(device)
+
     # Custom dataloaders
     train_dataset = FECDataset('train')
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
@@ -48,13 +50,14 @@ def train_net(args):
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False,
                                               num_workers=num_workers)
 
-    # scheduler = MultiStepLR(optimizer, milestones=[30, 80], gamma=0.1)
+    scheduler = MultiStepLR(optimizer, milestones=[30, 80], gamma=0.1)
 
     # Epochs
     for epoch in range(start_epoch, args.end_epoch):
         # One epoch's training
         train_loss, train_acc = train(train_loader=train_loader,
                                       model=model,
+                                      criterion=criterion,
                                       optimizer=optimizer,
                                       epoch=epoch,
                                       logger=logger)
@@ -69,6 +72,7 @@ def train_net(args):
         # One epoch's validation
         valid_loss, valid_acc = valid(valid_loader=test_loader,
                                       model=model,
+                                      criterion=criterion,
                                       logger=logger)
 
         writer.add_scalar('model/valid_loss', valid_loss, epoch)
@@ -85,42 +89,39 @@ def train_net(args):
 
         # Save checkpoint
         save_checkpoint(epoch, epochs_since_improvement, model, optimizer, best_acc, is_best)
-        # scheduler.step(epoch)
+        scheduler.step(epoch)
 
 
-def train(train_loader, model, optimizer, epoch, logger):
+def train(train_loader, model, criterion, optimizer, epoch, logger):
     model.train()  # train mode (dropout and batchnorm is used)
 
     losses = AverageMeter()
     accs = AverageMeter()
 
     # Batches
-    for i, (anchor_img, positive_img, negative_img, margin) in enumerate(train_loader):
+    for i, (img_0, img_1, img_2, y) in enumerate(train_loader):
         # Move to GPU, if available
-        anchor_img = anchor_img.to(device)
-        positive_img = positive_img.to(device)
-        negative_img = negative_img.to(device)
-        margin = margin.float().to(device)
-
-        imgs = [anchor_img, positive_img, negative_img]
-        embs = [None, None, None]
-
-        perm = [0, 1, 2]
-        np.random.shuffle(perm)
+        img_0 = img_0.to(device)
+        img_1 = img_1.to(device)
+        img_2 = img_2.to(device)
+        y = y.float().to(device)
+        # margin = margin.float().to(device)
 
         # Forward prop.
-        for idx in perm:
-            embs[idx] = model(imgs[idx])
+        x = model(img_0, img_1, img_2)
+        x = x.squeeze(dim=1)
+        # print('x: ' + str(x))
 
-        anchor_emb, positive_emb, negative_emb = embs[0], embs[1], embs[2]
-
+        # Calculate loss
+        loss = criterion(x, y)
+        acc = accuracy(x, y)
         # print(x.size())
         # print('x: ' + str(x))
 
         # Calculate loss
-        loss = triplet_margin_loss(anchor_emb, positive_emb, negative_emb, margin)
+        # loss = triplet_margin_loss(anchor_emb, positive_emb, negative_emb, margin)
         # loss = F.triplet_margin_loss(anchor=emb0, positive=emb1, negative=emb2, margin=0.1, swap=True)
-        acc = triplet_prediction_accuracy(anchor_emb, positive_emb, negative_emb)
+        # acc = triplet_prediction_accuracy(anchor_emb, positive_emb, negative_emb)
         # print('x.size(): ' + str(x.size()))
         # print('y.size(): ' + str(y.size()))
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)
@@ -156,32 +157,29 @@ def train(train_loader, model, optimizer, epoch, logger):
     return losses.avg, accs.avg
 
 
-def valid(valid_loader, model, logger):
+def valid(valid_loader, model, criterion, logger):
     model.eval()  # eval mode (dropout and batchnorm is NOT used)
 
     losses = AverageMeter()
     accs = AverageMeter()
 
     # Batches
-    for i, (img_0, img_1, img_2, margin) in enumerate(valid_loader):
+    for i, (img_0, img_1, img_2, y) in enumerate(valid_loader):
         # Move to GPU, if available
         img_0 = img_0.to(device)
         img_1 = img_1.to(device)
         img_2 = img_2.to(device)
-        margin = margin.float().to(device)
+        y = y.float().to(device)
+        # margin = margin.float().to(device)
 
         # Forward prop.
-        with torch.no_grad():
-            emb0 = model(img_0)
-            emb1 = model(img_1)
-            emb2 = model(img_2)
-            # print(x.size())
-            # print('x: ' + str(x))
+        x = model(img_0, img_1, img_2)
+        x = x.squeeze(dim=1)
+        # print('x: ' + str(x))
 
         # Calculate loss
-        loss = triplet_margin_loss(emb0, emb1, emb2, margin)
-        # loss = F.triplet_margin_loss(anchor=emb0, positive=emb1, negative=emb2, margin=0.1, swap=False)
-        acc = triplet_prediction_accuracy(emb0, emb1, emb2)
+        loss = criterion(x, y)
+        acc = accuracy(x, y)
         # loss = -y * torch.log(x) - (1 - y) * torch.log(1 - x)
         # loss = loss.mean()
 

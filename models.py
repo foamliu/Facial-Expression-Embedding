@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from torch import nn
 from torchsummary import summary
 from torchvision import models
-from config import device
+
 from mobilefacenet import MobileFaceNet
 
 
@@ -61,9 +61,11 @@ class RankNetMobile(nn.Module):
                                    nn.Linear(128, 16),
                                    # nn.Sigmoid(),
                                    )
+        print(self.model)
         self.output = nn.Sigmoid()
 
     def forward(self, input1, input2, input3):
+
         e1 = self.model(input1)
         e2 = self.model(input2)
         e3 = self.model(input3)
@@ -78,5 +80,6 @@ class RankNetMobile(nn.Module):
 
 
 if __name__ == "__main__":
+    from config import device
     model = RankNetMobile().to(device)
     summary(model, input_size=[(3, 112, 112), (3, 112, 112), (3, 112, 112)])

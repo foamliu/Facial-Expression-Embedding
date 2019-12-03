@@ -2,7 +2,6 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torchscope import scope
-from torchvision import models
 
 from mobilefacenet import MobileFaceNet
 
@@ -46,22 +45,26 @@ class DepthwiseSeparableConv(nn.Module):
 class RankNetMobile(nn.Module):
     def __init__(self):
         super(RankNetMobile, self).__init__()
-        mobilenet = models.mobilenet_v2(pretrained=True)
+        # mobilenet = models.mobilenet_v2(pretrained=True)
+
+        filename = 'mobilefacenet.pt'
+        model = MobileFaceNet()
+        model.load_state_dict(torch.load(filename))
+
         # Remove linear layer
-        modules = list(mobilenet.children())[:-1]
+        modules = list(model.children())
         self.model = nn.Sequential(*modules,
                                    # nn.AvgPool2d(kernel_size=7),
-                                   DepthwiseSeparableConv(1280, 1280, kernel_size=4, padding=0),
-                                   Flatten(),
-                                   nn.Dropout(0.5),
-                                   # nn.LeakyReLU(0.2, inplace=True),
-                                   nn.Linear(1280, 16),
+                                   # DepthwiseSeparableConv(1280, 1280, kernel_size=4, padding=0),
+                                   # Flatten(),
+                                   # nn.Dropout(0.5),
+                                   # # nn.LeakyReLU(0.2, inplace=True),
+                                   # nn.Linear(1280, 16),
                                    # nn.Sigmoid(),
                                    )
-        self.output = nn.Sigmoid()
-        self.criterion = nn.BCELoss()
+        self.sigmoid = nn.Sigmoid()
 
-    def forward(self, input1, input2, input3):
+    def train_(self, input1, input2, input3):
         e1 = self.model(input1)
         e1 = F.normalize(e1, dim=1)
         e2 = self.model(input2)
@@ -71,11 +74,12 @@ class RankNetMobile(nn.Module):
         d12 = F.pairwise_distance(e1, e2, p=2)
         d13 = F.pairwise_distance(e1, e3, p=2)
         # d23 = F.pairwise_distance(e2, e3, p=2)
-        return self.output(d12 - d13)
+        return self.sigmoid(d12 - d13)
 
-    def predict(self, input):
-        s = self.model(input)
-        return self.output(s)
+    def forward(self, input):
+        e = self.model(input)
+        e = F.normalize(e, dim=1)
+        return e
 
 
 if __name__ == "__main__":

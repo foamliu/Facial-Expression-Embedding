@@ -110,7 +110,7 @@ def train(train_loader, model, criterion, optimizer, epoch, logger):
         # margin = margin.float().to(device)
 
         # Forward prop.
-        x = model(img_0, img_1, img_2)
+        x = model.fwd(img_0, img_1, img_2)
         # print(x.size())
         # print('x: ' + str(x))
         # x = x.squeeze(dim=1)
@@ -176,7 +176,7 @@ def valid(valid_loader, model, criterion, logger):
         # margin = margin.float().to(device)
 
         # Forward prop.
-        x = model(img_0, img_1, img_2)
+        x = model.fwd(img_0, img_1, img_2)
         # x = x.squeeze(dim=1)
         # print('x: ' + str(x))
 

@@ -69,7 +69,7 @@ class RankNetMobile(nn.Module):
         self.fc = nn.Linear(128, 16)
         self.sigmoid = nn.Sigmoid()
 
-    def train_(self, input1, input2, input3):
+    def fwd(self, input1, input2, input3):
         e1 = self.forward(input1)
         e2 = self.forward(input2)
         e3 = self.forward(input3)

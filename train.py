@@ -109,9 +109,9 @@ def train(train_loader, model, criterion, optimizer, epoch, logger):
 
         # Forward prop.
         x = model(img_0, img_1, img_2)
-        print(x.size())
-        print('x: ' + str(x))
-        x = x.squeeze(dim=1)
+        # print(x.size())
+        # print('x: ' + str(x))
+        # x = x.squeeze(dim=1)
 
         # Calculate loss
         loss = criterion(x, y)
@@ -175,7 +175,7 @@ def valid(valid_loader, model, criterion, logger):
 
         # Forward prop.
         x = model(img_0, img_1, img_2)
-        x = x.squeeze(dim=1)
+        # x = x.squeeze(dim=1)
         # print('x: ' + str(x))
 
         # Calculate loss

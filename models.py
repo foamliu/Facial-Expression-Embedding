@@ -69,7 +69,7 @@ class RankNetMobile(nn.Module):
         self.fc = nn.Linear(128, 16)
         self.sigmoid = nn.Sigmoid()
 
-    def fwd(self, input1, input2, input3):
+    def forward(self, input1, input2, input3):
         e1 = self.forward(input1)
         e2 = self.forward(input2)
         e3 = self.forward(input3)
@@ -78,7 +78,7 @@ class RankNetMobile(nn.Module):
         # d23 = F.pairwise_distance(e2, e3, p=2)
         return self.sigmoid(d12 - d13)
 
-    def forward(self, input):
+    def predict(self, input):
         x = self.model(input)
         x = self.dropout(x)
         x = self.relu(x)

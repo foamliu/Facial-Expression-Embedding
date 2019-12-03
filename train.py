@@ -112,9 +112,9 @@ def train(train_loader, model, optimizer, epoch, logger):
         # emb1 = model(img_1)
         # emb2 = model(img_2)
 
-        for i in perm:
-            img = imgs[i]
-            embs[i] = model(img)
+        for idx in perm:
+            img = imgs[idx]
+            embs[idx] = model(img)
 
         emb0, emb1, emb2 = embs[0], embs[1], embs[2]
 

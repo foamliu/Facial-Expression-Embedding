@@ -106,6 +106,7 @@ def train(train_loader, model, criterion, optimizer, epoch, logger):
         img_1 = img_1.to(device)
         img_2 = img_2.to(device)
         y = y.float().to(device)
+
         # margin = margin.float().to(device)
 
         # Forward prop.

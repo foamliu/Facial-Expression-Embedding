@@ -43,45 +43,50 @@ class DepthwiseSeparableConv(nn.Module):
 
 
 class RankNetMobile(nn.Module):
-    def __init__(self):
+    def __init__(self, pretrained=True):
         super(RankNetMobile, self).__init__()
         # mobilenet = models.mobilenet_v2(pretrained=True)
 
         filename = 'mobilefacenet.pt'
-        self.model = MobileFaceNet()
-        self.model.load_state_dict(torch.load(filename))
+        model = MobileFaceNet()
+        if pretrained:
+            model.load_state_dict(torch.load(filename))
 
         # Remove linear layer
         # modules = list(model.children())
         # self.model = nn.Sequential(*modules,
-        #                            # nn.AvgPool2d(kernel_size=7),
-        #                            # DepthwiseSeparableConv(1280, 1280, kernel_size=4, padding=0),
-        #                            # Flatten(),
-        #                            # nn.Dropout(0.5),
-        #                            # # nn.LeakyReLU(0.2, inplace=True),
-        #                            # nn.Linear(1280, 16),
-        #                            # nn.Sigmoid(),
-        #                            )
+        # #                            # nn.AvgPool2d(kernel_size=7),
+        # #                            # DepthwiseSeparableConv(1280, 1280, kernel_size=4, padding=0),
+        # #                            # Flatten(),
+        # #                            # nn.Dropout(0.5),
+        # #                            # # nn.LeakyReLU(0.2, inplace=True),
+        # #                            # nn.Linear(1280, 16),
+        # #                            # nn.Sigmoid(),
+        #                             )
+        self.model = model
+        self.dropout = nn.Dropout(0.5)
+        self.relu = nn.LeakyReLU(0.2, inplace=True)
+        self.fc = nn.Linear(128, 16)
         self.sigmoid = nn.Sigmoid()
 
     def train_(self, input1, input2, input3):
-        e1 = self.model(input1)
-        e1 = F.normalize(e1, dim=1)
-        e2 = self.model(input2)
-        e2 = F.normalize(e2, dim=1)
-        e3 = self.model(input3)
-        e3 = F.normalize(e3, dim=1)
+        e1 = self.forward(input1)
+        e2 = self.forward(input2)
+        e3 = self.forward(input3)
         d12 = F.pairwise_distance(e1, e2, p=2)
         d13 = F.pairwise_distance(e1, e3, p=2)
         # d23 = F.pairwise_distance(e2, e3, p=2)
         return self.sigmoid(d12 - d13)
 
     def forward(self, input):
-        e = self.model(input)
-        e = F.normalize(e, dim=1)
-        return e
+        x = self.model(input)
+        x = self.dropout(x)
+        x = self.relu(x)
+        x = self.fc(x)
+        x = F.normalize(x, dim=1)
+        return x
 
 
 if __name__ == "__main__":
-    model = RankNetMobile()
+    model = RankNetMobile(pretrained=False)
     scope(model, input_size=(3, 112, 112))

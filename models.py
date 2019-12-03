@@ -48,20 +48,20 @@ class RankNetMobile(nn.Module):
         # mobilenet = models.mobilenet_v2(pretrained=True)
 
         filename = 'mobilefacenet.pt'
-        model = MobileFaceNet()
-        model.load_state_dict(torch.load(filename))
+        self.model = MobileFaceNet()
+        self.model.load_state_dict(torch.load(filename))
 
         # Remove linear layer
-        modules = list(model.children())
-        self.model = nn.Sequential(*modules,
-                                   # nn.AvgPool2d(kernel_size=7),
-                                   # DepthwiseSeparableConv(1280, 1280, kernel_size=4, padding=0),
-                                   # Flatten(),
-                                   # nn.Dropout(0.5),
-                                   # # nn.LeakyReLU(0.2, inplace=True),
-                                   # nn.Linear(1280, 16),
-                                   # nn.Sigmoid(),
-                                   )
+        # modules = list(model.children())
+        # self.model = nn.Sequential(*modules,
+        #                            # nn.AvgPool2d(kernel_size=7),
+        #                            # DepthwiseSeparableConv(1280, 1280, kernel_size=4, padding=0),
+        #                            # Flatten(),
+        #                            # nn.Dropout(0.5),
+        #                            # # nn.LeakyReLU(0.2, inplace=True),
+        #                            # nn.Linear(1280, 16),
+        #                            # nn.Sigmoid(),
+        #                            )
         self.sigmoid = nn.Sigmoid()
 
     def train_(self, input1, input2, input3):

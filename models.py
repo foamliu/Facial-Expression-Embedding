@@ -70,9 +70,9 @@ class RankNetMobile(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, input1, input2, input3):
-        e1 = self.forward(input1)
-        e2 = self.forward(input2)
-        e3 = self.forward(input3)
+        e1 = self.predict(input1)
+        e2 = self.predict(input2)
+        e3 = self.predict(input3)
         d12 = F.pairwise_distance(e1, e2, p=2)
         d13 = F.pairwise_distance(e1, e3, p=2)
         # d23 = F.pairwise_distance(e2, e3, p=2)

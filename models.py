@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from torch import nn
 from torchsummary import summary
 from torchvision import models
-
+from config import device
 from mobilefacenet import MobileFaceNet
 
 
@@ -78,5 +78,5 @@ class RankNetMobile(nn.Module):
 
 
 if __name__ == "__main__":
-    model = RankNetMobile()
+    model = RankNetMobile().to(device)
     summary(model, input_size=[(3, 112, 112), (3, 112, 112), (3, 112, 112)])

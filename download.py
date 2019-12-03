@@ -31,16 +31,17 @@ def download(tokens, idx, num):
 
     if os.path.isfile(fullname) and os.path.getsize(fullname) > 1000:
         img = cv.imread(fullname)
-        height, width = img.shape[:2]
-        left, right = int(round(left * width)), int(round(right * width))
-        top, bottom = int(round(top * height)), int(round(bottom * height))
-        img = img[top:bottom, left:right, :]
-        _, landmarks = detect_faces(img)
-        if len(landmarks) != 1:
-            return None
-        img = align_face(img, landmarks)
-        cv.imwrite(filename, img)
-        return filename
+        if img is not None:
+            height, width = img.shape[:2]
+            left, right = int(round(left * width)), int(round(right * width))
+            top, bottom = int(round(top * height)), int(round(bottom * height))
+            img = img[top:bottom, left:right, :]
+            _, landmarks = detect_faces(img)
+            if len(landmarks) != 1:
+                return None
+            img = align_face(img, landmarks)
+            cv.imwrite(filename, img)
+            return filename
 
     return None
 

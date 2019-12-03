@@ -67,8 +67,8 @@ class RankNetMobile(nn.Module):
         e3 = self.model(input3)
         d12 = F.pairwise_distance(e1, e2, p=2)
         d13 = F.pairwise_distance(e1, e3, p=2)
-        d23 = F.pairwise_distance(e2, e3, p=2)
-        return (self.output(d12 - d13) + self.output(d12 - d23))/2
+        # d23 = F.pairwise_distance(e2, e3, p=2)
+        return self.output(d12 - d13)
 
     def predict(self, input):
         s = self.model(input)

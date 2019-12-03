@@ -1,4 +1,5 @@
 import pickle
+import random
 
 import cv2 as cv
 from torch.utils.data import Dataset
@@ -57,12 +58,12 @@ class FECDataset(Dataset):
         annotation = sample['annotation']
         assert (annotation in [1, 2, 3])
 
-        if annotation == 3:
-            y = 0.
-        else:
-            y = 1.
+        img_1, img_2, img_3 = swap(img_1, img_2, img_3, annotation)
 
-        return img_1, img_2, img_3, y
+        if random.random() > 0.5:
+            return img_1, img_2, img_3, 0.
+        else:
+            return img_2, img_1, img_3, 0.
 
     def __len__(self):
         return len(self.samples)

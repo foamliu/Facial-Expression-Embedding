@@ -113,7 +113,6 @@ def train(train_loader, model, criterion, optimizer, epoch, logger):
         print('x: ' + str(x))
         x = x.squeeze(dim=1)
 
-
         # Calculate loss
         loss = criterion(x, y)
         acc = accuracy(x, y)

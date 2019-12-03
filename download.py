@@ -27,7 +27,11 @@ def download(tokens, idx, num):
     filename = os.path.join(image_folder, filename)
     # print(filename)
     if os.path.isfile(filename) and os.path.getsize(filename) > 1000:
-        return filename
+        img = cv.imread(filename)
+        if img is not None:
+            h, w = img.shape[:2]
+            if h == 112 and w == 112:
+                return filename
 
     if os.path.isfile(fullname) and os.path.getsize(fullname) > 1000:
         img = cv.imread(fullname)

@@ -2,7 +2,6 @@ import pickle
 import random
 
 import cv2 as cv
-import numpy as np
 from torch.utils.data import Dataset
 from torchvision import transforms
 
@@ -45,7 +44,6 @@ class FECDataset(Dataset):
         # full_path = os.path.join(image_folder, image_name)
         img = cv.imread(image_name)
         img = img[..., ::-1]  # RGB
-        img = np.unsqueeze(img, dim=0)
         img = transforms.ToPILImage()(img)
         img = self.transformer(img)
         return img

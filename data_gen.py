@@ -73,8 +73,8 @@ class FECDataset(Dataset):
 if __name__ == "__main__":
     train = FECDataset('train')
     print('num_train: ' + str(len(train)))
-    valid = FECDataset('valid')
-    print('num_valid: ' + str(len(valid)))
+    test = FECDataset('test')
+    print('num_valid: ' + str(len(test)))
 
     print(train[0])
-    print(valid[0])
+    print(test[0])

@@ -71,10 +71,8 @@ class FECDataset(Dataset):
 
 
 if __name__ == "__main__":
-    train = FECDataset('train')
-    print('num_train: ' + str(len(train)))
-    test = FECDataset('test')
-    print('num_valid: ' + str(len(test)))
+    filename = 'data/test.pkl'
+    with open(filename, 'rb') as file:
+        samples = pickle.load(file)
 
-    print(train[0])
-    print(test[0])
+    print(samples[:10])

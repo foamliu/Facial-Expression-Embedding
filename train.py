@@ -176,7 +176,8 @@ def valid(valid_loader, model, criterion, logger):
         # margin = margin.float().to(device)
 
         # Forward prop.
-        x = model(img_0, img_1, img_2)
+        with torch.no_grad():
+            x = model(img_0, img_1, img_2)
         # x = x.squeeze(dim=1)
         # print('x: ' + str(x))
 

@@ -25,8 +25,8 @@ def train_net(args):
         model = RankNetMobile()
         model = nn.DataParallel(model)
 
-        # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-        optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, nesterov=True)
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+        # optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, nesterov=True)
 
     else:
         checkpoint = torch.load(checkpoint)
@@ -51,7 +51,7 @@ def train_net(args):
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False,
                                               num_workers=num_workers)
 
-    scheduler = MultiStepLR(optimizer, milestones=[10, 20, 30, 40], gamma=0.1)
+    scheduler = MultiStepLR(optimizer, milestones=[10, 20, 30], gamma=0.1)
 
     # Epochs
     for epoch in range(start_epoch, args.end_epoch):

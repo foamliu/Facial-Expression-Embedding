@@ -1,6 +1,6 @@
 import os
 import pickle
-from statistics import mode
+from statistics import multimode
 
 import cv2 as cv
 from tqdm import tqdm
@@ -60,7 +60,8 @@ def get_samples(image_1, image_2, image_3, triplet_type, tokens):
         annotations.append(annotation)
 
     print(annotations)
-    annotation = mode(annotations)
+    annotation = multimode(annotations)
+    print(annotation)
     assert (annotation in [1, 2, 3])
     sample_list = [{'image_1': image_1, 'image_2': image_2, 'image_3': image_3, 'triplet_type': triplet_type,
                     'annotation': annotation}]

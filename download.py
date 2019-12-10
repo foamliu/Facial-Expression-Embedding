@@ -1,6 +1,5 @@
 import os
 import pickle
-from statistics import multimode
 
 import cv2 as cv
 from tqdm import tqdm
@@ -8,6 +7,18 @@ from tqdm import tqdm
 from config import download_folder, image_folder
 from retinaface.detector import detect_faces
 from utils import ensure_folder, align_face
+
+
+def most_common(word_list):
+    word_counter = {}
+    for word in word_list:
+        if word in word_counter:
+            word_counter[word] += 1
+        else:
+            word_counter[word] = 1
+    popular_words = sorted(word_counter, key=word_counter.get, reverse=True)
+    top_1 = popular_words[:0]
+    return top_1
 
 
 def download(tokens, idx, num):
@@ -60,7 +71,7 @@ def get_samples(image_1, image_2, image_3, triplet_type, tokens):
         annotations.append(annotation)
 
     print(annotations)
-    annotation = multimode(annotations)
+    annotation = most_common(annotations)
     print(annotation)
     assert (annotation in [1, 2, 3])
     sample_list = [{'image_1': image_1, 'image_2': image_2, 'image_3': image_3, 'triplet_type': triplet_type,

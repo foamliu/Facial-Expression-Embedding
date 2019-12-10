@@ -1,5 +1,6 @@
 import os
 import pickle
+from statistics import mode
 
 import cv2 as cv
 from tqdm import tqdm
@@ -30,7 +31,7 @@ def download(tokens, idx, num):
         img = cv.imread(filename)
         if img is not None:
             h, w = img.shape[:2]
-            if h == 112 and w == 112:
+            if h == 224 and w == 224:
                 return filename
 
     if os.path.isfile(fullname) and os.path.getsize(fullname) > 1000:
@@ -40,8 +41,8 @@ def download(tokens, idx, num):
             left, right = int(round(left * width)), int(round(right * width))
             top, bottom = int(round(top * height)), int(round(bottom * height))
             img = img[top:bottom, left:right, :]
-            _, landmarks = detect_faces(img)
-            if len(landmarks) != 1:
+            _, landmarks = detect_faces(img, top_k=1, keep_top_k=1)
+            if len(landmarks) < 1:
                 return None
             img = align_face(img, landmarks)
             cv.imwrite(filename, img)
@@ -58,7 +59,7 @@ def get_samples(image_1, image_2, image_3, triplet_type, tokens):
         assert (annotation in [1, 2, 3])
         annotations.append(annotation)
 
-    annotation = int(round(sum(annotations) / len(annotations)))
+    annotation = mode(annotations)
     assert (annotation in [1, 2, 3])
     sample_list = [{'image_1': image_1, 'image_2': image_2, 'image_3': image_3, 'triplet_type': triplet_type,
                     'annotation': annotation}]

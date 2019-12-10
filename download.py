@@ -17,7 +17,7 @@ def most_common(word_list):
         else:
             word_counter[word] = 1
     popular_words = sorted(word_counter, key=word_counter.get, reverse=True)
-    top_1 = popular_words[:0]
+    top_1 = popular_words[0]
     return top_1
 
 

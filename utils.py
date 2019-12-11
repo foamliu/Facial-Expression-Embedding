@@ -178,6 +178,7 @@ def triplet_prediction_accuracy(anchor_emb, positive_emb, negative_emb):
     correct = dist_12.lt(dist_13) * dist_12.lt(dist_23)
     print('correct: ' + str(correct))
     correct_total = correct.view(-1).float().sum()
+    print('correct_total: ' + str(correct_total))
     return correct_total * (100.0 / batch_size)
 
 

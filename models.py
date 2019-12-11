@@ -115,7 +115,7 @@ class ResNetRankModel(nn.Module):
         return self.sigmoid(d12 - (d13 + d23) / 2)
 
     def predict(self, input):
-        x = self.model(input)
+        x = self.features(input)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
         x = F.normalize(x)

@@ -103,6 +103,7 @@ class ResNetRankModel(nn.Module):
         modules = list(resnet.children())[:-1]
         self.features = nn.Sequential(*modules)
         self.fc = nn.Linear(2048, 16)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, input1, input2, input3):
         e1 = self.predict(input1)

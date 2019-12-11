@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 from config import device, grad_clip, print_freq, num_workers
 from data_gen import FECDataset
-from models import RankNetMobile
+from models import ResNetEmotionModel
 from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, get_learning_rate, \
     triplet_margin_loss, triplet_prediction_accuracy
 
@@ -23,7 +23,7 @@ def train_net(args):
 
     # Initialize / load checkpoint
     if checkpoint is None:
-        model = RankNetMobile()
+        model = ResNetEmotionModel()
         model = nn.DataParallel(model)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)

@@ -95,6 +95,33 @@ class ResNetEmotionModel(nn.Module):
         return x
 
 
+class ResNetRankModel(nn.Module):
+    def __init__(self, pretrained=True):
+        super(ResNetRankModel, self).__init__()
+        resnet = models.resnet50(pretrained=True)
+        # Remove linear layer
+        modules = list(resnet.children())[:-1]
+        self.features = nn.Sequential(*modules)
+        self.fc = nn.Linear(2048, 16)
+
+    def forward(self, input1, input2, input3):
+        e1 = self.predict(input1)
+        e2 = self.predict(input2)
+        e3 = self.predict(input3)
+        d12 = F.pairwise_distance(e1, e2, p=2)
+        d13 = F.pairwise_distance(e1, e3, p=2)
+        d23 = F.pairwise_distance(e2, e3, p=2)
+
+        return self.sigmoid(d12 - (d13 + d23) / 2)
+
+    def predict(self, input):
+        x = self.model(input)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        x = F.normalize(x)
+        return x
+
+
 if __name__ == "__main__":
     model = ResNetEmotionModel()
     scope(model, input_size=(3, 224, 224))

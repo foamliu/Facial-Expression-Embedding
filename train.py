@@ -7,9 +7,8 @@ from tqdm import tqdm
 
 from config import device, grad_clip, print_freq, num_workers
 from data_gen import FECDataset
-from models import ResNetEmotionModel
-from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, get_learning_rate, \
-    triplet_margin_loss, triplet_prediction_accuracy
+from models import ResNetRankModel
+from utils import parse_args, save_checkpoint, AverageMeter, clip_gradient, get_logger, get_learning_rate, accuracy
 
 
 def train_net(args):
@@ -23,7 +22,7 @@ def train_net(args):
 
     # Initialize / load checkpoint
     if checkpoint is None:
-        model = ResNetEmotionModel()
+        model = ResNetRankModel()
         model = nn.DataParallel(model)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
@@ -59,6 +58,7 @@ def train_net(args):
         # One epoch's training
         train_loss, train_acc = train(train_loader=train_loader,
                                       model=model,
+                                      criterion=criterion,
                                       optimizer=optimizer,
                                       epoch=epoch,
                                       logger=logger)
@@ -73,6 +73,7 @@ def train_net(args):
         # One epoch's validation
         valid_loss, valid_acc = valid(valid_loader=test_loader,
                                       model=model,
+                                      criterion=criterion,
                                       logger=logger)
 
         writer.add_scalar('model/valid_loss', valid_loss, epoch)
@@ -93,28 +94,26 @@ def train_net(args):
         save_checkpoint(epoch, epochs_since_improvement, model, optimizer, best_acc, is_best)
 
 
-def train(train_loader, model, optimizer, epoch, logger):
+def train(train_loader, model, criterion, optimizer, epoch, logger):
     model.train()  # train mode (dropout and batchnorm is used)
 
     losses = AverageMeter()
     accs = AverageMeter()
 
     # Batches
-    for i, (anchor_img, positive_img, negative_img, margin) in enumerate(train_loader):
+    for i, (anchor_img, positive_img, negative_img, y) in enumerate(train_loader):
         # Move to GPU, if available
         anchor_img = anchor_img.to(device)
         positive_img = positive_img.to(device)
         negative_img = negative_img.to(device)
-        margin = margin.float().to(device)
+        y = y.float().to(device)
 
         # Forward prop.
-        anchor_emb = model(anchor_img)
-        positive_emb = model(positive_img)
-        negative_emb = model(negative_img)
+        x = model(anchor_img, positive_img, negative_img)
 
         # Calculate loss
-        loss = triplet_margin_loss(anchor_emb, positive_emb, negative_emb, margin)
-        acc = triplet_prediction_accuracy(anchor_emb, positive_emb, negative_emb)
+        loss = criterion(x, y)
+        acc = accuracy(x, y)
 
         # Back prop.
         optimizer.zero_grad()
@@ -144,29 +143,27 @@ def train(train_loader, model, optimizer, epoch, logger):
     return losses.avg, accs.avg
 
 
-def valid(valid_loader, model, logger):
+def valid(valid_loader, model, criterion, logger):
     model.eval()  # eval mode (dropout and batchnorm is NOT used)
 
     losses = AverageMeter()
     accs = AverageMeter()
 
     # Batches
-    for (anchor_img, positive_img, negative_img, margin) in tqdm(valid_loader):
+    for (anchor_img, positive_img, negative_img, y) in tqdm(valid_loader):
         # Move to GPU, if available
         anchor_img = anchor_img.to(device)
         positive_img = positive_img.to(device)
         negative_img = negative_img.to(device)
-        margin = margin.float().to(device)
+        y = y.float().to(device)
 
         # Forward prop.
         with torch.no_grad():
-            anchor_emb = model(anchor_img)
-            positive_emb = model(positive_img)
-            negative_emb = model(negative_img)
+            x = model(anchor_img, positive_img, negative_img)
 
         # Calculate loss
-        loss = triplet_margin_loss(anchor_emb, positive_emb, negative_emb, margin)
-        acc = triplet_prediction_accuracy(anchor_emb, positive_emb, negative_emb)
+        loss = criterion(x, y)
+        acc = accuracy(x, y)
 
         # Keep track of metrics
         losses.update(loss.item())

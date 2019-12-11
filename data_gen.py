@@ -61,15 +61,10 @@ class FECDataset(Dataset):
 
         img_1, img_2, img_3 = swap(img_1, img_2, img_3, annotation)
 
-        if triplet_type == 'ONE_CLASS_TRIPLET':
-            margin = 0.1
-        else:
-            margin = 0.2
-
         if random.random() > 0.5:
-            return img_1, img_2, img_3, margin
+            return img_1, img_2, img_3, 0.
         else:
-            return img_2, img_1, img_3, margin
+            return img_2, img_1, img_3, 0.
 
     def __len__(self):
         return len(self.samples)

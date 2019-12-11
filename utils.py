@@ -168,7 +168,7 @@ def triplet_margin_loss(anchor_emb, positive_emb, negative_emb, margin=0.0):
 
 
 def triplet_prediction_accuracy(anchor_emb, positive_emb, negative_emb):
-    print('anchor_emb: ' + str(anchor_emb))
+    # print('anchor_emb: ' + str(anchor_emb))
     dist_12 = torch.sum((anchor_emb - positive_emb) ** 2, dim=1)
     print('dist_12: ' + str(dist_12))
     dist_13 = torch.sum((anchor_emb - negative_emb) ** 2, dim=1)

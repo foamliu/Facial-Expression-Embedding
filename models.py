@@ -2,9 +2,10 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 from torchscope import scope
+from torchvision import models
 
 from mobilefacenet import MobileFaceNet
-from torchvision import models
+
 
 class FECNet(nn.Module):
     def __init__(self):
@@ -85,13 +86,12 @@ class ResNetEmotionModel(nn.Module):
         self.features = nn.Sequential(*modules)
         # building last several layers
         self.fc = nn.Linear(2048, 16)
-        self.bn = nn.BatchNorm1d(16)
 
     def forward(self, x):
         x = self.features(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
-        x = self.bn(x)
+        x = F.normalize(x)
         return x
 
 

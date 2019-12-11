@@ -5,8 +5,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  # sets de
 im_size = 224
 emb_size = 128
 
-num_train = 375110
-num_test = 46006
+num_train = 378219
+num_test = 46397
 
 train_anno_file = 'data/FEC_dataset/faceexp-comparison-data-train-public.csv'
 test_anno_file = 'data/FEC_dataset/faceexp-comparison-data-test-public.csv'

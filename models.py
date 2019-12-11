@@ -4,7 +4,7 @@ from torch import nn
 from torchscope import scope
 
 from mobilefacenet import MobileFaceNet
-
+from torchvision import models
 
 class FECNet(nn.Module):
     def __init__(self):
@@ -76,6 +76,25 @@ class RankNetMobile(nn.Module):
         return x
 
 
+class ResNetEmotionModel(nn.Module):
+    def __init__(self):
+        super(ResNetEmotionModel, self).__init__()
+        resnet = models.resnet50(pretrained=True)
+        # Remove linear layer
+        modules = list(resnet.children())[:-1]
+        self.features = nn.Sequential(*modules)
+        # building last several layers
+        self.fc = nn.Linear(2048, 16)
+        self.bn = nn.BatchNorm1d(16)
+
+    def forward(self, x):
+        x = self.features(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        x = self.bn(x)
+        return x
+
+
 if __name__ == "__main__":
-    model = RankNetMobile(pretrained=False)
-    scope(model, input_size=(3, 112, 112))
+    model = ResNetEmotionModel()
+    scope(model, input_size=(3, 224, 224))
